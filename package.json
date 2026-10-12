@@ -1,0 +1,21 @@
+{
+  "name": "ai-journey",
+  "version": "0.0.1",
+  "private": true,
+  "description": "黎噶的 AI 应用转型练习项目 —— 第 0 周：打通链路",
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-key.mjs",
+    "config": "node scripts/gen-config.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "dev": "npx serve . -l 3000"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9"
+  }
+}

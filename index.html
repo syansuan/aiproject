@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 聊天练习 · 第 0 周</title>
+    <style>
+      :root {
+        --bg: #f7f7f5;
+        --surface: #fff;
+        --ink: #1d1d1b;
+        --ink2: #55554f;
+        --ink3: #8a8a82;
+        --line: #e4e3de;
+        --blue: #185fa5;
+        --red: #a32d2d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 6px;
+      }
+      .sub {
+        color: var(--ink3);
+        font-size: 14px;
+        margin: 0 0 28px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin: 0 0 16px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--ink2);
+        margin: 0 0 6px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 10px 12px;
+        font-size: 15px;
+        font-family: inherit;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        resize: vertical;
+        background: #fff;
+        color: var(--ink);
+      }
+      textarea:focus {
+        outline: 2px solid var(--blue);
+        outline-offset: -1px;
+        border-color: transparent;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      button {
+        padding: 9px 18px;
+        font-size: 14px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 1px solid var(--blue);
+        background: var(--blue);
+        color: #fff;
+        transition: opacity 0.15s;
+      }
+      button:hover {
+        opacity: 0.88;
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      button.ghost {
+        background: #fff;
+        color: var(--blue);
+      }
+      #output {
+        white-space: pre-wrap;
+        word-break: break-word;
+        min-height: 60px;
+        font-size: 15px;
+        line-height: 1.75;
+        margin: 0;
+      }
+      #output .placeholder {
+        color: var(--ink3);
+      }
+      #status {
+        font-size: 13px;
+        color: var(--ink3);
+        margin-top: 10px;
+        min-height: 20px;
+      }
+      #status.err {
+        color: var(--red);
+      }
+      .note {
+        font-size: 13px;
+        color: var(--ink3);
+        border-left: 3px solid var(--line);
+        padding-left: 12px;
+        margin: 20px 0 0;
+      }
+      code {
+        background: #f0efe9;
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>AI 聊天练习</h1>
+      <p class="sub">第 0 周 · 目标：手写一次流式输出，不用任何框架</p>
+
+      <div class="card">
+        <label for="input">输入</label>
+        <textarea id="input" placeholder="试着问点什么，比如：用三句话讲讲什么是 RAG"></textarea>
+        <div class="row">
+          <button id="send">发送</button>
+          <button id="stop" class="ghost" disabled>停止生成</button>
+          <button id="clear" class="ghost">清空</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>模型回复</label>
+        <p id="output"><span class="placeholder">这里会显示模型的回答。</span></p>
+        <div id="status"></div>
+      </div>
+
+      <p class="note">
+        <b>你要做的事</b>：打开 <code>app.js</code>，里面有 2 个 TODO 函数等你实现。
+        目标不是做得好看，是让字一个个蹦出来。做完这个，第 1 个半天就结束了。
+      </p>
+    </div>
+    <!-- 本地配置：先加载它，把 Key 挂到 window.__APP_CONFIG__ 上，供 app.js 读取。
+     这个文件是自动生成的（npm run config 从 .env 生成），不进 Git。
+     如果控制台报 config.local.js 404，说明还没生成过 —— 跑一次 npm run config。 -->
+    <script src="./config.local.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

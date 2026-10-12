@@ -1,0 +1,7 @@
+{
+  // 存盘就自动格式化 —— 你不用「养成习惯」，工具替你做了
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "files.eol": "\n"
+}

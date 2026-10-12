@@ -1,0 +1,13 @@
+# 依赖
+node_modules/
+
+# 密钥与生成物 —— 绝不格式化（config.local.js 由 npm run config 生成，改它没用）
+.env
+.env.*
+config.local.js
+
+# npm 自己管的锁文件
+package-lock.json
+
+# 学习用的参考实现，不属于项目
+app.参考实现.js
