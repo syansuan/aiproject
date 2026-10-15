@@ -2,7 +2,7 @@
   "name": "ai-journey",
   "version": "0.0.1",
   "private": true,
-  "description": "黎噶的 AI 应用转型练习项目 —— 第 0 周：打通链路",
+  "description": "原生 fetch 手写大模型流式对话（SSE 解析 / 中断生成 / 失败重试）+ FastAPI 检索后端",
   "type": "module",
   "scripts": {
     "check": "node scripts/check-key.mjs",

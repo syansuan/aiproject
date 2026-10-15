@@ -1,18 +1,17 @@
 // ============================================
-// 冒烟测试：不用打开浏览器，直接验证 app.js 的核心逻辑
+// 冒烟测试：不打开浏览器，直接验证 app.js 的核心逻辑
 // ============================================
 // 运行方式（在项目根目录）：
-//   npm run smoke                 ← 正常发一次，验证 TODO 1（流式解析）
+//   npm run smoke                 ← 正常发一次请求，验证流式解析
 //   npm run smoke -- --stop       ← 发出去后中途点「停止」，验证中断真的生效
-//   npm run smoke -- --fail=401   ← 让请求「注定失败」，验证 TODO 2（重试）
+//   npm run smoke -- --fail=401   ← 让请求「注定失败」，验证重试判定
 //
 // 【--fail 是什么】
-//   想测重试，就必须让请求「失败几次之后再成功」。
-//   靠改 .env 里的 Key / 模型名做不到这件事——那种错是「每次都错」，
+//   要测重试，就必须让请求「失败几次之后再成功」。
+//   靠改 .env 里的 Key / 模型名做不到 —— 那种错每次都错，
 //   只能测出「一次就挂了」，测不出「重试」。
 //   所以这里把 globalThis.fetch 换成一个「按剧本失败」的假 fetch。
-//   这个手法叫「测试替身 / 打桩」（test double / stub），是测重试的标准做法。
-//   面试问「你怎么测重试」，答这个比答「我把网线拔了」高一档。
+//   这个手法叫测试替身 / 打桩（test double / stub），是测重试的标准做法。
 //
 //   可用的剧本：
 //     --fail=401      每次都返回 401（Key 错）→ 期望【不重试】，1 次就结束
@@ -25,7 +24,7 @@
 //   app.js 是给浏览器写的，里面用了 document.querySelector 这些东西。
 //   Node 里没有 document，所以下面先造一套「假的 DOM」——
 //   每个元素只有 textContent / value / addEventListener 这几个假属性，
-//   足够骗过 app.js，让它以为自己跑在浏览器里。
+//   足够让 app.js 以为自己跑在浏览器里。
 //   然后按 file:// 把 app.js 当普通模块 import 进来，触发「发送」按钮的处理函数。
 //
 //   这样就能在不打开浏览器的情况下，跑通「发请求 → 解析 SSE → 写进 output」全链路。
@@ -70,7 +69,7 @@ const FAIL = (() => {
 })();
 
 // 真实报错体的结构：{"error":{"code":"...","message":"..."}}
-// 这几条是我实际打接口抓下来的原文，不是编的。
+// 下面几条是从接口实际抓下来的报错体原文。
 const FAIL_BODIES = {
   401: [401, { error: { code: '401', message: '令牌已过期或验证不正确' } }],
   429: [429, { error: { code: '1302', message: '您的账号当前调用并发量超限，请稍后重试' } }],
@@ -153,8 +152,8 @@ const $status = els['#status'];
 // ---------- 4. 给 output 装个计数器 ----------
 // 数一数 textContent 被「追加」了多少次。
 // 这是判断有没有真的流式的唯一硬证据：
-//   只增长 1 次  → 一次性拿到全文（说明 stream 没生效，或者解析有问题）
-//   增长多次     → 真的在逐字蹦出来 ✅
+//   只增长 1 次 → 一次性拿到全文（stream 没生效，或解析有问题）
+//   增长多次    → 真的在逐块到达 ✅
 let ticks = 0;
 let lastLen = 0;
 const lengths = [];
@@ -248,7 +247,7 @@ if (FAIL) {
   const attempts = FAIL.kind === '401' ? 1 : Math.min(FAIL.times + 1, MAX_ATTEMPTS);
   const plan =
     FAIL.kind === '401'
-      ? { attempts, final: 'err', why: '401 = Key 错了，重试一万次也没用' }
+      ? { attempts, final: 'err', why: '401 = Key 错了，重发多少次结果都一样' }
       : {
           attempts,
           // 最后一次尝试如果还是「剧本里的失败」，那最终结果必然是出错
@@ -289,7 +288,7 @@ if (FAIL) {
     bad.push(`期望尝试 ${plan.attempts} 次，实际尝试了 ${fetchCalls.length} 次`);
     if (fetchCalls.length === 1 && plan.attempts > 1) {
       bad.push(
-        '一次就结束了 → withRetry 还没实现（现在只是 return fn()），或者没判断「这个错该不该重试」'
+        '只尝试了 1 次 → withRetry 可能没有真正重试（例如直接 return fn()），或只判断了「该不该重试」却没进入下一轮'
       );
     }
   }
@@ -310,7 +309,7 @@ if (FAIL) {
     console.log('❌ 还没通过：');
     for (const b of bad) console.log('   · ' + b);
     console.log('');
-    console.log('（TODO 2 就是要把上面这些变绿。改完再跑同一条命令。）');
+    console.log('（对照上面对不上的项，检查 withRetry 的退避间隔与 isRetryable 的判定规则）');
     console.log('');
     process.exit(1);
   }
@@ -357,6 +356,6 @@ if (problems.length) {
   process.exit(1);
 }
 
-console.log(`✅ TODO 1 通过：流式到达 ${ticks} 次，内容干净，无 SSE 残留`);
+console.log(`✅ 通过：流式到达 ${ticks} 次，内容干净，无 SSE 残留`);
 console.log('');
-console.log('（中断已经接通了，随时可以跑 `npm run smoke -- --stop` 验证）');
+console.log('（可随时跑 `npm run smoke -- --stop` 验证中断）');

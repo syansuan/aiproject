@@ -15,12 +15,11 @@ build/
 # 别手动创建这个文件：只改 .env，然后跑一次 npm run config
 config.local.js
 
-# 学习用的参考实现 —— 相当于自己的答案本，不进公开仓库
-# 面试官看到「app.js + app.参考实现.js」会怀疑哪个是你写的
+# 本地草稿 / 参考实现，不进仓库
 app.参考实现.js
 *参考实现*
 
-# 个人安排 / 学习计划 —— 含个人作息、辅导批注等，不进公开仓库
+# 本地计划与个人笔记
 PLAN.local.md
 *.local.md
 
@@ -46,3 +45,13 @@ pnpm-debug.log*
 *.tmp
 *.temp
 .tmp/
+
+
+__pycache__/
+*.pyc
+
+# Python 虚拟环境 —— 体积大且可以重建，不进仓库
+server/.venv/
+
+# 向量产物 —— 几 MB 的浮点数字，随时能重跑生成，不进仓库
+data/vectors.json

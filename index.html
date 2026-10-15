@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI 聊天练习 · 第 0 周</title>
+    <title>大模型流式对话 · 原生 fetch 实现</title>
     <style>
       :root {
         --bg: #f7f7f5;
@@ -137,8 +137,8 @@
   </head>
   <body>
     <div class="wrap">
-      <h1>AI 聊天练习</h1>
-      <p class="sub">第 0 周 · 目标：手写一次流式输出，不用任何框架</p>
+      <h1>大模型流式对话</h1>
+      <p class="sub">原生 fetch 手写 SSE 解析、中途停止与失败重试，不依赖任何 SDK</p>
 
       <div class="card">
         <label for="input">输入</label>
@@ -157,13 +157,13 @@
       </div>
 
       <p class="note">
-        <b>你要做的事</b>：打开 <code>app.js</code>，里面有 2 个 TODO 函数等你实现。
-        目标不是做得好看，是让字一个个蹦出来。做完这个，第 1 个半天就结束了。
+        首次运行先执行 <code>npm run config</code> 生成 <code>config.local.js</code>， 再用
+        <code>npx serve .</code> 打开页面。不开浏览器验证核心逻辑：<code>npm run smoke</code>。
       </p>
     </div>
-    <!-- 本地配置：先加载它，把 Key 挂到 window.__APP_CONFIG__ 上，供 app.js 读取。
-     这个文件是自动生成的（npm run config 从 .env 生成），不进 Git。
-     如果控制台报 config.local.js 404，说明还没生成过 —— 跑一次 npm run config。 -->
+    <!-- 本地配置：先加载它，把配置挂到 window.__APP_CONFIG__ 上，供 app.js 读取。
+     这个文件由 npm run config 从 .env 生成，不进 Git。
+     若控制台报 config.local.js 404，说明还没生成过 —— 跑一次 npm run config。 -->
     <script src="./config.local.js"></script>
     <script type="module" src="./app.js"></script>
   </body>

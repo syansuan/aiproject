@@ -9,5 +9,5 @@ config.local.js
 # npm 自己管的锁文件
 package-lock.json
 
-# 学习用的参考实现，不属于项目
+# 本地草稿文件（不提交）
 app.参考实现.js
