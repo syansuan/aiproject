@@ -54,11 +54,11 @@ def split_by_heading(text: str, source: str) -> list[dict]:
     """
     parts = []
     for line in text.splitlines():
-        if line.startswith("## "):
+        if line.startswith("##"):
             parts.append(
                 {
                     "source": source,
-                    "heading": line.removeprefix("## "),
+                    "heading": line.lstrip("#").strip(),
                     "text": "",
                 }
             )
