@@ -15,9 +15,8 @@ build/
 # 别手动创建这个文件：只改 .env，然后跑一次 npm run config
 config.local.js
 
-# 本地草稿 / 参考实现，不进仓库
-app.参考实现.js
-*参考实现*
+# 本地草稿，不进仓库
+*.local.js
 
 # 本地计划与个人笔记
 PLAN.local.md

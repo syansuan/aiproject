@@ -10,4 +10,4 @@ config.local.js
 package-lock.json
 
 # 本地草稿文件（不提交）
-app.参考实现.js
+*.local.js

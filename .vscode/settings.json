@@ -1,7 +1,18 @@
 {
-  // 统一缩进与格式化：存盘自动执行，规则见 .prettierrc
+  // 格式化规则见 .prettierrc（作用于 JS / HTML / JSON / CSS）
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
-  "files.eol": "\n"
+  "files.eol": "\n",
+
+  // Python 的缩进规范和 JS 不同：PEP 8 要求 4 空格，JS 社区习惯 2 空格。
+  // 不按语言分开设置的话，在这个工作区里写 .py 会被自动缩进成 2 空格，
+  // 一跑就是 IndentationError。detectIndentation 必须关掉，
+  // 否则 VSCode 会"跟着文件现有的缩进走"，混用后更难查。
+  "[python]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": false
+  }
 }
