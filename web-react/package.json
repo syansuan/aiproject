@@ -1,0 +1,20 @@
+{
+  "name": "ai-journey-web-react",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AI 对话前端 · React + Vite 版（与根目录原生 JS 版并存，共用同一个后端）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
