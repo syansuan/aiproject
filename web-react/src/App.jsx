@@ -11,6 +11,7 @@ export default function App() {
 
   const [draft, setDraft] = useState('');
   const bottomRef = useRef(null);
+  const [isMode, setIsMode] = useState(true);
 
   // 每次 messages 变化后滚到底部（流式时也会持续跟着走）
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function App() {
 
   function handleSend() {
     if (isStreaming) return;
-    send(draft);
+    send(draft, isMode);
     setDraft('');
   }
 
@@ -53,6 +54,15 @@ export default function App() {
           <div key={m.id} className={`msg ${m.role}`}>
             <div className="who">{m.role === 'user' ? '你' : 'AI'}</div>
             <div className="text">{m.text || (m.role === 'assistant' ? '…' : '')}</div>
+            {m.sources && (
+              <ul>
+                {m.sources.map((s, i) => (
+                  <li key={s.id}>
+                    来源{i + 1}：[{s.source}] {s.heading}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
         <div ref={bottomRef} />
@@ -69,6 +79,10 @@ export default function App() {
         />
         <div className="actions">
           <span className={`status ${status.startsWith('出错') ? 'err' : ''}`}>{status}</span>
+          <label>
+            <input type="checkbox" checked={isMode} onChange={(e) => setIsMode(e.target.checked)} />
+            知识库模式
+          </label>
           <button onClick={stop} disabled={!isStreaming}>
             停止
           </button>

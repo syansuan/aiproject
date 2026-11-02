@@ -48,7 +48,40 @@ export function useChatStream({ apiKey }) {
   }, []);
 
   /**
-   * 发一次流式请求，边读边把增量交给 onDelta（移植自根目录 app.js 的 streamChat）。
+   * 知识库模式：调自己的后端 /api/ask（检索 + 生成在服务端一次完成）。
+   *
+   * 不走流式：/ask 是一次性返回 { answer, sources } 的普通接口，
+   * 没有做 SSE 透传，所以体验是「转圈 → 整段出现」，与流式模式形成对比。
+   * 走 vite 的 /api 代理到 127.0.0.1:8000，同源，无 CORS。
+   */
+  async function searchMode(userText, onDelta) {
+    abortRef.current = new AbortController();
+
+    const response = await fetch('/api/ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        question: userText,
+      }),
+      // 也挂上信号：知识库模式下点「停止」同样要真断连接，而不只是把按钮变灰
+      signal: abortRef.current.signal,
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      const err = new Error(`HTTP ${response.status}: ${body.slice(0, 200)}`);
+      err.status = response.status;
+      throw err;
+    }
+    const data = await response.json();
+
+    if (data.answer) onDelta(data.answer);
+    return data;
+  }
+  /**
+   * 流式模式：直连模型 API，边读边把增量交给 onDelta（移植自根目录 app.js 的 streamChat）。
    *
    * 三个关键点：
    *   a) 先判 response.ok 再读 body —— 401 的错误响应体被当流读，
@@ -74,7 +107,6 @@ export function useChatStream({ apiKey }) {
       }),
       signal: abortRef.current?.signal,
     });
-
     // 先判断 HTTP 状态再解析。否则 401 的错误响应体也会被当成流去读，
     // 报出来的错会非常误导人。
     if (!response.ok) {
@@ -121,7 +153,6 @@ export function useChatStream({ apiKey }) {
       }
     }
   }
-
   /**
    * 重试。判据只有一个：重发一次，结果会不会不一样。
    *   会变（断网 / 429 限流 / 5xx）→ 重试
@@ -181,12 +212,26 @@ export function useChatStream({ apiKey }) {
       }
     }
   }
-
+  // 每次尝试（含重试）前清空占位：重发等于重新生成，上一次已吐出的半截文字必须丢掉
+  const resetPlaceholder = () =>
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      return [...prev.slice(0, -1), { ...last, text: '' }];
+    });
+  /** 把检索来源挂到最后一条 assistant 消息上（知识库模式专用） */
+  const attachSources = (sources) =>
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      return [...prev.slice(0, -1), { ...last, sources }];
+    });
   /**
-   * 发送。外面这一层是「流程编排」，里面的请求细节在 streamOnce 里。
+   * 发送。这一层只做「流程编排」：push 消息 → 发请求（knowledge 模式走 searchMode，
+   * 否则走 streamOnce）→ 挂来源 → 更新状态。请求细节都在下面两个函数里。
    */
   const send = useCallback(
-    async (text) => {
+    async (text, mode = false) => {
       const question = text.trim();
       if (!question) return;
 
@@ -200,19 +245,24 @@ export function useChatStream({ apiKey }) {
       setStatus('生成中...');
 
       // 两条一起 push、一次 setState：先放「你」的提问，再放一条空的 assistant 占位 ——
-      // appendDelta 永远改最后一条，请求发出前必须先有接收方。
-      // 每次尝试（含重试）前 resetPlaceholder 清空占位，避免重试时拼接出重复内容。
-      const resetPlaceholder = () =>
-        setMessages((prev) => {
-          if (!prev.length) return prev;
-          const last = prev[prev.length - 1];
-          return [...prev.slice(0, -1), { ...last, text: '' }];
-        });
+      // appendDelta / attachSources 都只改最后一条，请求发出前必须先有接收方。
+      setMessages((prev) => {
+        const baseId = prev.length ? prev[prev.length - 1].id + 1 : 1;
+        return [
+          ...prev,
+          { id: baseId, role: 'user', text: question },
+          { id: baseId + 1, role: 'assistant', text: '' },
+        ];
+      });
       try {
-        await withRetry(() => {
+        // 两种模式只差这一个三元，其余流程完全一样
+        const data = await withRetry(() => {
           resetPlaceholder();
-          return streamOnce(question, appendDelta);
+          return mode ? searchMode(question, appendDelta) : streamOnce(question, appendDelta);
         });
+
+        if (data) attachSources(data.sources); // 流式模式 data 是 undefined，跳过
+
         setStatus(abortedRef.current ? '已停止' : '完成');
       } catch (err) {
         // 用户点停止 → fetch 抛 AbortError，这是正常流程，不是错误
